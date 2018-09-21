@@ -1,6 +1,7 @@
 package com.geely.mesh.demo.userservice.service.impl;
 
 import com.geely.mesh.demo.userservice.domain.User;
+import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
 import com.geely.mesh.demo.userservice.service.UserService;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
+        if(!users.containsKey(user.getUserId())) {
+            throw new UserNotFoundException(user.getUserId());
+        }
         users.put(user.getUserId(), user);
     }
 

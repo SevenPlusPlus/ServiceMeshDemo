@@ -1,12 +1,15 @@
 package com.geely.mesh.demo.userservice.controller;
 
 import com.geely.mesh.demo.userservice.domain.User;
+import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
 import com.geely.mesh.demo.userservice.monitor.PrometheusMetrics;
 import com.geely.mesh.demo.userservice.service.UserService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,13 +45,18 @@ public class UserController {
     @ApiOperation(value="获取用户详细信息", notes="根据url的id来获取用户详细信息")
     @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path")
     @RequestMapping(value="/{userid}", method=RequestMethod.GET)
-    public User getUser(@PathVariable Long userid) {
+    public ResponseEntity<User> getUser(@PathVariable Long userid) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return userService.getUserById(userid);
+        User user = userService.getUserById(userid);
+        if(user == null)
+        {
+            throw new UserNotFoundException(userid);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PrometheusMetrics
@@ -74,7 +82,9 @@ public class UserController {
             return "success";
         }
         else {
-            return "failed";
+            throw new RuntimeException("Delete user failed");
         }
     }
+
+
 }
