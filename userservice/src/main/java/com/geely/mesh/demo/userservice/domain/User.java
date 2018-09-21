@@ -13,4 +13,8 @@ public class User {
     private String name;
     @ApiModelProperty(value = "用户年龄", required = true)
     private Integer age;
+    @ApiModelProperty(value = "登录用户名", required = true)
+    private String loginName;
+    @ApiModelProperty(value = "登录密码")
+    private String passwd;
 }

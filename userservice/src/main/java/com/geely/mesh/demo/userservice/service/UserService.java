@@ -10,4 +10,5 @@ public interface UserService {
     User getUserById(Long userId);
     void updateUser(User user);
     Boolean deleteUserById(Long userId);
+    Long loginVerify(String loginName, String passwd);
 }
