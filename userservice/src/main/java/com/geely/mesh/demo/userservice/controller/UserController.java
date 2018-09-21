@@ -1,6 +1,7 @@
 package com.geely.mesh.demo.userservice.controller;
 
 import com.geely.mesh.demo.userservice.domain.User;
+import com.geely.mesh.demo.userservice.exception.UserLoginFailedException;
 import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
 import com.geely.mesh.demo.userservice.monitor.PrometheusMetrics;
 import com.geely.mesh.demo.userservice.service.UserService;
@@ -12,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -86,5 +89,18 @@ public class UserController {
         }
     }
 
-
+    @PrometheusMetrics
+    @ApiOperation(value="用户校验登录", notes="根据用户名和密码登录获取用户ID")
+    @ApiImplicitParam(name = "loginParams", value = "用户登录信息", required = true, dataType = "Map<String, String>")
+    @RequestMapping(value="/login", method=RequestMethod.POST)
+    public Map<String, Object> userLogin(@RequestBody Map<String, String> loginParams) {
+        Long userid = userService.loginVerify(loginParams.get("loginName"), loginParams.get("passwd"));
+        if(userid < 0) {
+            throw new UserLoginFailedException(loginParams.get("loginName"));
+        }
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("userId", userid);
+        retMap.put("welcomeMsg", "Welcome back " + loginParams.get("loginName"));
+        return retMap;
+    }
 }

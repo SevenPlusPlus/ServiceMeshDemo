@@ -47,4 +47,16 @@ public class UserServiceImpl implements UserService {
     public Boolean deleteUserById(Long userId) {
         return users.remove(userId) != null;
     }
+
+    @Override
+    public Long loginVerify(String loginName, String passwd) {
+        for(User user : users.values())
+        {
+            if(user.getLoginName().equals(loginName) &&
+                    user.getPasswd().equals(passwd)){
+                return user.getUserId();
+            }
+        }
+        return -1l;
+    }
 }
