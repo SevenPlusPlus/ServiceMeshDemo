@@ -62,6 +62,30 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @RequestMapping(value="/{userid}/deposit", method=RequestMethod.POST)
+    @ApiOperation(value="存钱入用户账户余额", notes="根据url的id来指定更新对象，并根据传过来的存款信息来更新用户余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "kvParams", value = "用户存款信息", required = true, dataType = "Map<String, Object>")
+    })
+    public ResponseEntity<Long> depositMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
+        Long amount = Long.parseLong(kvParams.get("amount").toString());
+        Long newBalance = userService.deposit(userid, amount);
+        return new ResponseEntity<>(newBalance, HttpStatus.OK);
+    }
+
+    @RequestMapping(value="/{userid}/pay", method=RequestMethod.POST)
+    @ApiOperation(value="用户消费账户余额", notes="根据url的id来指定更新对象，并根据传过来的消费信息来更新用户余额")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path"),
+            @ApiImplicitParam(name = "kvParams", value = "用户消费信息", required = true, dataType = "Map<String, Object>")
+    })
+    public ResponseEntity<Long> payMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
+        Long amount = Long.parseLong(kvParams.get("amount").toString());
+        Long newBalance = userService.payment(userid, amount);
+        return new ResponseEntity<>(newBalance, HttpStatus.OK);
+    }
+
     @PrometheusMetrics
     @ApiOperation(value="更新用户详细信息", notes="根据url的id来指定更新对象，并根据传过来的user信息来更新用户详细信息")
     @ApiImplicitParams({
@@ -69,10 +93,10 @@ public class UserController {
             @ApiImplicitParam(name = "user", value = "用户详细实体user", required = true, dataType = "User")
     })
     @RequestMapping(value="/{userid}", method=RequestMethod.PUT)
-    public String putUser(@PathVariable Long userid, @RequestBody User user) {
+    public ResponseEntity<String> putUser(@PathVariable Long userid, @RequestBody User user) {
         user.setUserId(userid);
         userService.updateUser(user);
-        return "success";
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
     @PrometheusMetrics

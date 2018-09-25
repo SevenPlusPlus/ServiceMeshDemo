@@ -11,4 +11,6 @@ public interface UserService {
     void updateUser(User user);
     Boolean deleteUserById(Long userId);
     Long loginVerify(String loginName, String passwd);
+    Long payment(Long userId, Long amount);
+    Long deposit(Long userId, Long amount);
 }

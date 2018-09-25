@@ -17,4 +17,6 @@ public class User {
     private String loginName;
     @ApiModelProperty(value = "登录密码")
     private String passwd;
+    @ApiModelProperty(value = "账户余额")
+    private Long balance;
 }

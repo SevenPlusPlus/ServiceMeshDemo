@@ -1,6 +1,7 @@
 package com.geely.mesh.demo.userservice.service.impl;
 
 import com.geely.mesh.demo.userservice.domain.User;
+import com.geely.mesh.demo.userservice.exception.UserNoEnoughBalanceException;
 import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
 import com.geely.mesh.demo.userservice.service.UserService;
 import org.springframework.stereotype.Service;
@@ -58,5 +59,29 @@ public class UserServiceImpl implements UserService {
             }
         }
         return -1l;
+    }
+
+    @Override
+    public Long payment(Long userId, Long amount) {
+        if(!users.containsKey(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+        if(users.get(userId).getBalance() >= amount)
+        {
+            Long currentBalance = users.get(userId).getBalance();
+            users.get(userId).setBalance(currentBalance - amount);
+            return users.get(userId).getBalance();
+        }
+        throw new UserNoEnoughBalanceException(userId);
+    }
+
+    @Override
+    public Long deposit(Long userId, Long amount) {
+        if(!users.containsKey(userId)) {
+            throw new UserNotFoundException(userId);
+        }
+        Long currentBalance = users.get(userId).getBalance();
+        users.get(userId).setBalance(currentBalance + amount);
+        return users.get(userId).getBalance();
     }
 }

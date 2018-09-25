@@ -2,6 +2,7 @@ package com.geely.mesh.demo.userservice.controller;
 
 import com.geely.mesh.demo.userservice.domain.CommonError;
 import com.geely.mesh.demo.userservice.exception.UserLoginFailedException;
+import com.geely.mesh.demo.userservice.exception.UserNoEnoughBalanceException;
 import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,19 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonError> UserNotFound(UserNotFoundException e){
         Long userId = e.getUserId();
         CommonError error = new CommonError(10001 , "User （"+userId+") not found");
-        return new ResponseEntity<CommonError>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<CommonError>(error, HttpStatus.OK);
     }
 
     @ExceptionHandler(UserLoginFailedException.class)
     public ResponseEntity<CommonError> UserLoginFailed(UserLoginFailedException e){
         CommonError error = new CommonError(10001 , "User （"+e.getLoginName()+") login failed");
-        return new ResponseEntity<CommonError>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<CommonError>(error, HttpStatus.OK);
+    }
+
+    @ExceptionHandler(UserNoEnoughBalanceException.class)
+    public ResponseEntity<CommonError> UserPaymentFailed(UserNoEnoughBalanceException e) {
+        CommonError error = new CommonError(10002 , "User （"+e.getUserId()+") no enough money available");
+        return new ResponseEntity<CommonError>(error, HttpStatus.OK);
     }
 
     @ExceptionHandler(Exception.class)
