@@ -3,12 +3,14 @@ package com.geely.mesh.demo.orderservice.service.impl;
 import com.geely.mesh.demo.orderservice.domain.Order;
 import com.geely.mesh.demo.orderservice.service.OrderService;
 import com.google.common.collect.Lists;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Service
 public class OrderServiceImpl implements OrderService {
 
     static Map<Long, Order> orders = new ConcurrentHashMap<Long, Order>();

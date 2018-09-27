@@ -22,6 +22,11 @@ public class InventoryServiceImpl implements InventoryService {
     public Long createProduct(Inventory inventory) {
         Long productId = productIdCounter.addAndGet(1);
         inventory.setProductId(productId);
+        if(inventory.getCreateTs() == 0l)
+        {
+            inventory.setCreateTs(System.currentTimeMillis());
+            inventory.setUpdateTs(System.currentTimeMillis());
+        }
         inventoryMap.put(productId, inventory);
         return null;
     }
@@ -59,6 +64,7 @@ public class InventoryServiceImpl implements InventoryService {
         if(newAvail >= 0)
         {
             inventoryMap.get(productId).setAvailableNum(newAvail);
+            inventoryMap.get(productId).setUpdateTs(System.currentTimeMillis());
             return newAvail;
         }
         throw new ProductNotAvailableException(productId);
@@ -70,6 +76,7 @@ public class InventoryServiceImpl implements InventoryService {
         Long currentAvail = inventoryMap.get(productId).getAvailableNum();
         Long newAvail = currentAvail + num;
         inventoryMap.get(productId).setAvailableNum(newAvail);
+        inventoryMap.get(productId).setUpdateTs(System.currentTimeMillis());
         return newAvail;
     }
 }

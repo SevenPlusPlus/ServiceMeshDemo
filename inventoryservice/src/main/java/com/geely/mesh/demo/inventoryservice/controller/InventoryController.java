@@ -54,7 +54,7 @@ public class InventoryController {
     @ApiOperation(value="创建商品库存", notes="根据Inventory对象创建商品库存")
     @ApiImplicitParam(name = "inventory", value = "商品库存实体inventory", required = true, dataType = "Inventory")
     @RequestMapping(value="/", method=RequestMethod.POST)
-    public String postUser(@RequestBody Inventory inventory) {
+    public String postInventory(@RequestBody Inventory inventory) {
         Long productId = inventoryService.createProduct(inventory);
         return "success: [productId:" + productId + "]";
     }
@@ -77,7 +77,7 @@ public class InventoryController {
             @ApiImplicitParam(name = "productid", value = "商品ID", required = true, dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "kvParams", value = "商品出库信息", required = true, dataType = "Map<String, Object>")
     })
-    public ResponseEntity<Long> payMoney(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
+    public ResponseEntity<Long> stockOut(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
         Long count = Long.parseLong(kvParams.get("count").toString());
         Long newAvail = inventoryService.decInventory(productid, count);
         return new ResponseEntity<>(newAvail, HttpStatus.OK);
