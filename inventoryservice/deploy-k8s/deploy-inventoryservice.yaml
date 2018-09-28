@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventoryservice-deploy
+  labels: 
+    app: inventoryservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventoryservice
+  template:
+    metadata:
+      labels:
+        app: inventoryservice
+    spec:
+      containers:
+      - name: inventoryservice
+        image: 10.190.34.23:5000/inventoryservice:v1
+        ports:
+        - containerPort: 8388

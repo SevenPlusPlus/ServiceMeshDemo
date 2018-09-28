@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: userservice
+  name: inventoryservice
 spec:
   type: NodePort
   ports:
-  - port: 8888
+  - port: 8388
     protocol: TCP
-    targetPort: 8888
+    targetPort: 8388
   selector:
-    app: userservice
+    app: inventoryservice
