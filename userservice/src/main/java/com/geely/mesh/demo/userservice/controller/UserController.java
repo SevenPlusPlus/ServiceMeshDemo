@@ -1,5 +1,6 @@
 package com.geely.mesh.demo.userservice.controller;
 
+import com.geely.mesh.demo.userservice.domain.CommonResponse;
 import com.geely.mesh.demo.userservice.domain.User;
 import com.geely.mesh.demo.userservice.exception.UserLoginFailedException;
 import com.geely.mesh.demo.userservice.exception.UserNotFoundException;
@@ -8,6 +9,7 @@ import com.geely.mesh.demo.userservice.service.UserService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,21 +36,22 @@ public class UserController {
     @ApiOperation(value="创建用户", notes="根据User对象创建用户")
     @ApiImplicitParam(name = "user", value = "用户详细实体user", required = true, dataType = "User")
     @RequestMapping(value="/", method=RequestMethod.POST)
-    public String postUser(@RequestBody User user) {
+    public ResponseEntity<CommonResponse> postUser(@RequestBody User user) {
         Long userId = userService.saveUser(user);
         try {
             Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        return "success: [userid:" + userId + "]";
+        CommonResponse response = new CommonResponse("success: [userid:" + userId + "]");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PrometheusMetrics
     @ApiOperation(value="获取用户详细信息", notes="根据url的id来获取用户详细信息")
     @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path")
     @RequestMapping(value="/{userid}", method=RequestMethod.GET)
-    public ResponseEntity<User> getUser(@PathVariable Long userid) {
+    public ResponseEntity<CommonResponse> getUser(@PathVariable Long userid) {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -59,7 +62,8 @@ public class UserController {
         {
             throw new UserNotFoundException(userid);
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(JSONObject.fromObject(user).toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value="/{userid}/deposit", method=RequestMethod.POST)
@@ -68,10 +72,11 @@ public class UserController {
             @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "kvParams", value = "用户存款信息", required = true, dataType = "Map<String, Object>")
     })
-    public ResponseEntity<Long> depositMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
+    public ResponseEntity<CommonResponse> depositMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
         Long amount = Long.parseLong(kvParams.get("amount").toString());
         Long newBalance = userService.deposit(userid, amount);
-        return new ResponseEntity<>(newBalance, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(JSONObject.fromObject(newBalance).toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value="/{userid}/pay", method=RequestMethod.POST)
@@ -80,10 +85,11 @@ public class UserController {
             @ApiImplicitParam(name = "userid", value = "用户ID", required = true, dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "kvParams", value = "用户消费信息", required = true, dataType = "Map<String, Object>")
     })
-    public ResponseEntity<Long> payMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
+    public ResponseEntity<CommonResponse> payMoney(@PathVariable Long userid, @RequestBody Map<String, Object> kvParams) {
         Long amount = Long.parseLong(kvParams.get("amount").toString());
         Long newBalance = userService.payment(userid, amount);
-        return new ResponseEntity<>(newBalance, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(JSONObject.fromObject(newBalance).toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PrometheusMetrics
@@ -93,10 +99,11 @@ public class UserController {
             @ApiImplicitParam(name = "user", value = "用户详细实体user", required = true, dataType = "User")
     })
     @RequestMapping(value="/{userid}", method=RequestMethod.PUT)
-    public ResponseEntity<String> putUser(@PathVariable Long userid, @RequestBody User user) {
+    public ResponseEntity<CommonResponse> putUser(@PathVariable Long userid, @RequestBody User user) {
         user.setUserId(userid);
         userService.updateUser(user);
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        CommonResponse response = new CommonResponse("success");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PrometheusMetrics
@@ -117,7 +124,7 @@ public class UserController {
     @ApiOperation(value="用户校验登录", notes="根据用户名和密码登录获取用户ID")
     @ApiImplicitParam(name = "loginParams", value = "用户登录信息", required = true, dataType = "Map<String, String>")
     @RequestMapping(value="/login", method=RequestMethod.POST)
-    public Map<String, Object> userLogin(@RequestBody Map<String, String> loginParams) {
+    public ResponseEntity<CommonResponse> userLogin(@RequestBody Map<String, String> loginParams) {
         Long userid = userService.loginVerify(loginParams.get("loginName"), loginParams.get("passwd"));
         if(userid < 0) {
             throw new UserLoginFailedException(loginParams.get("loginName"));
@@ -125,6 +132,7 @@ public class UserController {
         Map<String, Object> retMap = new HashMap<>();
         retMap.put("userId", userid);
         retMap.put("welcomeMsg", "Welcome back " + loginParams.get("loginName"));
-        return retMap;
+        CommonResponse response = new CommonResponse(JSONObject.fromObject(retMap).toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

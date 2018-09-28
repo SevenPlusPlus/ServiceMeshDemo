@@ -28,7 +28,7 @@ public class InventoryServiceImpl implements InventoryService {
             inventory.setUpdateTs(System.currentTimeMillis());
         }
         inventoryMap.put(productId, inventory);
-        return null;
+        return productId;
     }
 
     @Override

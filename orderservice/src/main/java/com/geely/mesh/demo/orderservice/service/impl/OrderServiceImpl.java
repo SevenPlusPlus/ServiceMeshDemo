@@ -26,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
         newOrder.setTotalAmount(totalAmount);
         newOrder.setStatus(0);
         newOrder.setCreateTs(System.currentTimeMillis());
+        orders.put(newOrder.getOrderId(), newOrder);
         return newOrder;
     }
 

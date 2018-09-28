@@ -1,11 +1,13 @@
 package com.geely.mesh.demo.inventoryservice.controller;
 
+import com.geely.mesh.demo.inventoryservice.domain.CommonResponse;
 import com.geely.mesh.demo.inventoryservice.domain.Inventory;
 import com.geely.mesh.demo.inventoryservice.monitor.PrometheusMetrics;
 import com.geely.mesh.demo.inventoryservice.service.InventoryService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +26,11 @@ public class InventoryController {
     @ApiOperation(value="获取商品库存信息", notes="根据url的productId来获取商品库存信息")
     @ApiImplicitParam(name = "productid", value = "商品ID", required = true, dataType = "Long", paramType = "path")
     @RequestMapping(value="/{productid}", method= RequestMethod.GET)
-    public ResponseEntity<Inventory> getProduct(@PathVariable Long productid) {
+    public ResponseEntity<CommonResponse> getProduct(@PathVariable Long productid) {
 
         Inventory inventory = inventoryService.getProductById(productid);
-        return new ResponseEntity<>(inventory, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(JSONObject.fromObject(inventory).toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PrometheusMetrics
@@ -37,10 +40,11 @@ public class InventoryController {
             @ApiImplicitParam(name = "count", value = "商品数量", required = true, dataType = "Long", paramType = "query")
     })
     @RequestMapping(value="/calc", method = RequestMethod.GET)
-    public ResponseEntity<Long> calcTotalAmount(@RequestParam("productid") Long productid,
+    public ResponseEntity<CommonResponse> calcTotalAmount(@RequestParam("productid") Long productid,
                                                 @RequestParam("count") Long count) {
         Long total = inventoryService.calcProductTotalFee(productid, count);
-        return new ResponseEntity<>(total, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(total.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PrometheusMetrics
@@ -54,9 +58,10 @@ public class InventoryController {
     @ApiOperation(value="创建商品库存", notes="根据Inventory对象创建商品库存")
     @ApiImplicitParam(name = "inventory", value = "商品库存实体inventory", required = true, dataType = "Inventory")
     @RequestMapping(value="/", method=RequestMethod.POST)
-    public String postInventory(@RequestBody Inventory inventory) {
+    public ResponseEntity<CommonResponse> postInventory(@RequestBody Inventory inventory) {
         Long productId = inventoryService.createProduct(inventory);
-        return "success: [productId:" + productId + "]";
+        CommonResponse response = new CommonResponse("success: [productId:" + productId + "]");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value="/{productid}/in", method=RequestMethod.POST)
@@ -65,10 +70,11 @@ public class InventoryController {
             @ApiImplicitParam(name = "productid", value = "商品ID", required = true, dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "kvParams", value = "商品入库信息", required = true, dataType = "Map<String, Object>")
     })
-    public ResponseEntity<Long> stockIn(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
+    public ResponseEntity<CommonResponse> stockIn(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
         Long count = Long.parseLong(kvParams.get("count").toString());
         Long newAvail = inventoryService.incInventory(productid, count);
-        return new ResponseEntity<>(newAvail, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(newAvail.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @RequestMapping(value="/{productid}/out", method=RequestMethod.POST)
@@ -77,9 +83,10 @@ public class InventoryController {
             @ApiImplicitParam(name = "productid", value = "商品ID", required = true, dataType = "Long", paramType = "path"),
             @ApiImplicitParam(name = "kvParams", value = "商品出库信息", required = true, dataType = "Map<String, Object>")
     })
-    public ResponseEntity<Long> stockOut(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
+    public ResponseEntity<CommonResponse> stockOut(@PathVariable Long productid, @RequestBody Map<String, Object> kvParams) {
         Long count = Long.parseLong(kvParams.get("count").toString());
         Long newAvail = inventoryService.decInventory(productid, count);
-        return new ResponseEntity<>(newAvail, HttpStatus.OK);
+        CommonResponse response = new CommonResponse(newAvail.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
