@@ -53,6 +53,12 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public Long calcProductTotalFee(Long productId, Long num) {
         checkProductExists(productId);
+        if(num >= 3) {
+            return (long)(inventoryMap.get(productId).getPrice() * num * 0.6);
+        }
+        else if(num >= 2) {
+            return (long)(inventoryMap.get(productId).getPrice() * num * 0.8);
+        }
         return inventoryMap.get(productId).getPrice() * num;
     }
 
