@@ -65,6 +65,11 @@
 			<artifactId>simpleclient_hotspot</artifactId>
 			<version>0.5.0</version>
 		</dependency>
+		<dependency>
+			<groupId>io.opentracing.contrib</groupId>
+			<artifactId>opentracing-spring-jaeger-web-starter</artifactId>
+			<version>0.1.5</version>
+		</dependency>
 		<!-- JSONObject对象依赖的jar包 -->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
